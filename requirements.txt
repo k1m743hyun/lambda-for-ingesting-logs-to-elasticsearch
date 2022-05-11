@@ -1,0 +1,2 @@
+elasticsearch<7.14.0
+aws_requests_auth
