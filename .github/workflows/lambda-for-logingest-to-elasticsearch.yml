@@ -1,0 +1,75 @@
+# This is a basic workflow to help you get started with Actions
+name: lambda-for-logingest-to-elasticsearch CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches:
+      - main
+    paths:
+      - 'lambda-for-logingest-to-elasticsearch/**'
+      - '.github/workflows/lambda-for-logingest-to-elasticsearch.yml'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "workflow"
+  workflow:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-northeast-2 # Seoul
+      AWS_LAMBDA_FUNCTION_NAME: lambda-for-logingest-to-elasticsearch
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_ID }}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Install Python Packages
+      - name: Install Python Packages
+        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
+        run: |
+          ls -a
+          mkdir packages
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -t packages/
+          ls -a packages
+
+      # Make a Zip File
+      - name: Make a Zip File
+        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
+        run: zip -r ${{ env.AWS_LAMBDA_FUNCTION_NAME }}.zip .
+
+      # Deploy to AWS Lambda
+      - name: Deploy to AWS Lambda
+        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
+        run: |
+          aws lambda update-function-code \
+          --function-name ${{ env.AWS_LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb://${{ env.AWS_LAMBDA_FUNCTION_NAME }}.zip \
+          --publish > lam_conf.json
+
+      # Update a Lambda Configuration for SQS
+      - name: Update a Lambda Configuration for SQS
+        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
+        run: |
+          lambda_arn=$(cat lam_conf.json | jq -r '.FunctionArn');
+          echo "lambda_arn: $lambda_arn";
+          aws lambda update-event-source-mapping \
+          --uuid ${{ secrets.AWS_SQS_UUID }} \
+          --function-name $lambda_arn
