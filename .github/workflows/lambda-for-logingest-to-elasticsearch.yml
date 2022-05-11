@@ -7,9 +7,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'lambda-for-logingest-to-elasticsearch/**'
-      - '.github/workflows/lambda-for-logingest-to-elasticsearch.yml'
+    paths-ignore:
+      - '.github/workflows/codeql-analysis.yml'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
