@@ -53,7 +53,7 @@ def lambda_handler(event, context):
             cf_id = object_key.split('/')[0]
 
             # Unknown CloudFront
-            if not PATTERN_INFO.cf_dict.get(cf_id):
+            if cf_id not in globals()['PATTERN_INFO']['cf_dict']:
                 break
 
             # get a credential token for S3 by assume role
