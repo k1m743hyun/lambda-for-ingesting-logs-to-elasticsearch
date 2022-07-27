@@ -1,4 +1,4 @@
-# AWS Lambda for ingesting logs to Elasticsearch
+# AWS Lambda for ingesting the Logs from Amazon CloudFront to Elasticsearch
 
 ## Description
 
