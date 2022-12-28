@@ -1,5 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-name: lambda-for-logingest-to-elasticsearch CI
+name: Deploy to AWS Lambda
 
 # Controls when the workflow will run
 on:
@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: ap-northeast-2 # Seoul
-      AWS_LAMBDA_FUNCTION_NAME: lambda-for-logingest-to-elasticsearch
 
+    if: github.repository_owner == 'thkim0022'
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
@@ -41,7 +41,7 @@ jobs:
 
       # Install Python Packages
       - name: Install Python Packages
-        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
+        working-directory: ./${{ github.event.repository.name }}
         run: |
           mkdir packages
           python -m pip install --upgrade pip
@@ -49,21 +49,21 @@ jobs:
 
       # Make a Zip File
       - name: Make a Zip File
-        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
-        run: zip -r ${{ env.AWS_LAMBDA_FUNCTION_NAME }}.zip .
+        working-directory: ./${{ github.event.repository.name }}
+        run: zip -r ${{ github.event.repository.name }}.zip .
 
       # Deploy to AWS Lambda
       - name: Deploy to AWS Lambda
-        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
+        working-directory: ./${{ github.event.repository.name }}
         run: |
           aws lambda update-function-code \
-          --function-name ${{ env.AWS_LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb://${{ env.AWS_LAMBDA_FUNCTION_NAME }}.zip \
+          --function-name ${{ github.event.repository.name }} \
+          --zip-file fileb://${{ github.event.repository.name }}.zip \
           --publish > lam_conf.json
 
       # Update a Lambda Configuration for SQS
       - name: Update a Lambda Configuration for SQS
-        working-directory: ./${{ env.AWS_LAMBDA_FUNCTION_NAME }}
+        working-directory: ./${{ github.event.repository.name }}
         run: |
           lambda_arn=$(cat lam_conf.json | jq -r '.FunctionArn');
           echo "lambda_arn: $lambda_arn";
