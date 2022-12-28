@@ -8,7 +8,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - '.github/workflows/'
+      - '.github/workflows/*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -42,7 +42,6 @@ jobs:
 
       # Install Python Packages
       - name: Install Python Packages
-        working-directory: ./
         run: |
           mkdir packages
           python -m pip install --upgrade pip
@@ -50,12 +49,10 @@ jobs:
 
       # Make a Zip File
       - name: Make a Zip File
-        working-directory: ./
         run: zip -r ${{ github.event.repository.name }}.zip .
 
       # Deploy to AWS Lambda
       - name: Deploy to AWS Lambda
-        working-directory: ./
         run: |
           aws lambda update-function-code \
           --function-name ${{ github.event.repository.name }} \
@@ -64,7 +61,6 @@ jobs:
 
       # Update a Lambda Configuration for SQS
       - name: Update a Lambda Configuration for SQS
-        working-directory: ./
         run: |
           lambda_arn=$(cat lam_conf.json | jq -r '.FunctionArn');
           echo "lambda_arn: $lambda_arn";
