@@ -3,7 +3,7 @@
 
 ### Description
 
-- d
+- Amazon CloudFront의 표준 로그를 파싱하여 필드를 추가한 후에 Elasticsearch로 보내는 코드입니다.
 
 
 ### Environment
@@ -13,8 +13,22 @@
 
 ### Installation
 
+##### 1) Clone the repo
+
+```
+git clone https://github.com/k1m743hyun/lambda-for-ingesting-logs-to-elasticsearch.git
+```
+
+##### 2)
+
+```
+```
+
 
 ### Usage
+
+```
+```
 
 
 ### License
