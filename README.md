@@ -19,16 +19,10 @@
 git clone https://github.com/k1m743hyun/lambda-for-ingesting-logs-to-elasticsearch.git
 ```
 
-##### 2)
-
-```
-```
-
 
 ### Usage
 
-```
-```
+- Auto Run ./github/workflows/deploy-to-aws-lambda.yml After Edit the code and Push it
 
 
 ### License
